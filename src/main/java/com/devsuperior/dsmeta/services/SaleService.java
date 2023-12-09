@@ -10,7 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.devsuperior.dsmeta.dto.SaleMinDTO;
+import com.devsuperior.dsmeta.dto.SaleSummaryDTO;
 import com.devsuperior.dsmeta.entities.Sale;
+import com.devsuperior.dsmeta.projections.SaleSummaryProjection;
 import com.devsuperior.dsmeta.repositories.SaleRepository;
 
 @Service
@@ -32,4 +34,13 @@ public class SaleService {
 		Page<SaleMinDTO> page = repository.getSalesReport(min, max, name, pageable);
 		return page;
 	}
+
+	public Page<SaleSummaryDTO> geSaleSummary(String minDate, String maxDate, Pageable pageable){
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate max = maxDate.isEmpty() ? LocalDate.now() : LocalDate.parse(maxDate, format);
+		LocalDate min = minDate.isEmpty() ? max.minusYears(1L) : LocalDate.parse(minDate, format);
+		Page<SaleSummaryProjection> projection = repository.getSaleSummary(min, max, pageable);
+		return projection.map(x -> new SaleSummaryDTO(x));
+	}
+	
 }
